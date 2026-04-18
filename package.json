@@ -1,6 +1,7 @@
 {
   "name": "omnicontent",
   "version": "1.0.0",
+  "type": "module",
   "description": "OmniContent: A production ready, Headless Multi Tenant CMS built with Node.js, TypeScript, and MongoDB. Designed for horizontal scalability, featuring dynamic schema definition, granular RBAC and strict data isolation. Built to demonstrate high level system design, ACID compliant transactions in NoSQL, and end-to-end type safety.",
   "main": "index.js",
   "scripts": {
@@ -11,6 +12,12 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mongoose": "^8.23.0",
+    "nodemon": "^3.1.14"
   }
 }
