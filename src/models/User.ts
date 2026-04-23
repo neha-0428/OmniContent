@@ -6,6 +6,7 @@ export interface UserInterface extends Document {
     email: string,
     password: string,
     role: 'admin' | 'editor' | 'viewer',
+    is_active: boolean,
 }
 
 const userSchema = new Schema<UserInterface>(
@@ -33,12 +34,18 @@ const userSchema = new Schema<UserInterface>(
             type: String,
             enum: ['admin', 'editor', 'viewer'],
             default: 'viewer'
+        },
+        is_active: {
+            type: Boolean,
+            default: true
         }
     },
     {
         timestamps: true
     }
 )
+
+userSchema.index({ orgId: 1, email: 1}, { unique: true })
 
 const User = model<UserInterface>('User', userSchema);
 export default User;
