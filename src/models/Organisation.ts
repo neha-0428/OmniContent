@@ -1,18 +1,19 @@
 import { Schema, model, type Document } from 'mongoose';
 
-export interface OrganizationInterface extends Document {
-    name: string;
-    slug: string;
+export interface OrganisationInterface extends Document {
+    name: string,
+    slug: string,
     settings: {
         theme: 'light' | 'dark',
         language: string
     },
     isActive: boolean,
+    subscription_plan: string,
     createdAt: Date,
     updatedAt: Date
 }
 
-const organizationSchema = new Schema<OrganizationInterface>(
+const organisationSchema = new Schema<OrganisationInterface>(
     {
         name: {
             type: String,
@@ -27,18 +28,26 @@ const organizationSchema = new Schema<OrganizationInterface>(
             trim: true,
             index: true,
         },
-        settings: {
-            theme: { type: String, enum: ['light', 'dark'], default: 'light'},
-            language: { type: String, default: 'en'}
-        },
         isActive: {
             type: Boolean,
             default: true
+        },
+        subscription_plan: {
+            type: String,
+            enum: ['Free', 'Pro', 'Enterprise'],
+            default: 'Free'
+        },
+        settings: {
+            theme: { 
+                type: String,
+                enum: ['light', 'dark'],
+                default: 'light'
+            },
         },
     }, {
         timestamps: true
     }
 )
 
-const Organization = model<OrganizationInterface>('Organization', organizationSchema);
-export default Organization;
+const Organisation = model<OrganisationInterface>('Organisation', organisationSchema);
+export default Organisation;
