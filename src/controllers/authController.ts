@@ -1,5 +1,5 @@
-import Organisation from "@/models/Organisation.js";
-import User from "@/models/User.js";
+import Organisation, { OrganisationInterface } from "@/models/Organisation.js";
+import User, { UserInterface } from "@/models/User.js";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 
@@ -14,24 +14,38 @@ export const registerOrganisation = async (req: Request, res: Response) => {
 
   const session = await mongoose.startSession();
 
+  let response;
+
   try {
-    let result;
     await session.withTransaction(async () => {
-      const [orgnisation] = await Organisation.create(
+
+      const organisations = await Organisation.create(
         [{ name: orgName, subscription_plan }],
         { session },
-      );
+      ) as OrganisationInterface[];
 
-      const [user] = await User.create([{ name, email, password, orgId: orgnisation._id, role: 'admin' }], {
+      const organisation = organisations[0];
+
+      if(!organisation) throw new Error("Failed to create Organisation!");
+
+      const users = await User.create([{ name, email, password, orgId: organisation._id, role: 'admin' }], {
         session,
-      });
+      }) as UserInterface[];
+
+      const user = users[0]
+
+      if(!user) throw new Error("Failed to create User!");
+
+      response = {
+        user: {id: user._id, name: user.name, email: user.email},
+        organisation: { id: organisation._id, name: organisation.name, slug: organisation.slug }
+      }
     });
 
-    result = { user, organisation };
 
     return res
       .status(201)
-      .json({ message: "Organisation created successfully!", data: result });
+      .json({ message: "Organisation created successfully!", data: response });
   } catch (err: any) {
 
     if(err.code === 11000) {
