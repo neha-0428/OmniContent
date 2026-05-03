@@ -1,24 +1,47 @@
 import Organisation from "@/models/Organisation.js";
+import User from "@/models/User.js";
 import { Request, Response } from "express";
-
+import mongoose from "mongoose";
 
 export const registerOrganisation = async (req: Request, res: Response) => {
-    try {
-        const { name, slug, isActive, subscription_plan, settings } = req.body;
+  const { name, email, password, orgName, subscription_plan } = req.body;
 
-        const existingOrganisation = await Organisation.findOne({ slug })
-        if(existingOrganisation) {
-            return res.status(400).json({ message: "Organisation already exists!" })
-        }
+  const existingUser = await User.findOne({ email });
 
-        const organisation = new Organisation({ name, slug, isActive, subscription_plan, settings });
-        await organisation.save();
+  if (existingUser) {
+    return res.status(400).json({ message: "Organisation already exists!" });
+  }
 
-        return res.status(201).json({ message: "Organisation created successfully!" })
+  const session = await mongoose.startSession();
 
-    } catch (err) {
-        
-        return res.status(500).json({ message: "Internal Server Error", error: err })
+  try {
+    let result;
+    await session.withTransaction(async () => {
+      const [orgnisation] = await Organisation.create(
+        [{ name: orgName, subscription_plan }],
+        { session },
+      );
 
+      const [user] = await User.create([{ name, email, password, orgId: orgnisation._id, role: 'admin' }], {
+        session,
+      });
+    });
+
+    result = { user, organisation };
+
+    return res
+      .status(201)
+      .json({ message: "Organisation created successfully!", data: result });
+  } catch (err: any) {
+
+    if(err.code === 11000) {
+        return res.status(400).json({ message: "Organization name/slug or email already exists." })
     }
-}
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error", error: err.message });
+      
+  } finally {
+    session.endSession();
+  }
+};

@@ -1,4 +1,5 @@
 import { model, Schema, Types, type Document } from "mongoose";
+import bcrypt from "bcrypt";
 
 export interface UserInterface extends Document {
     name: string,
@@ -7,6 +8,8 @@ export interface UserInterface extends Document {
     password: string,
     role: 'admin' | 'editor' | 'viewer',
     is_active: boolean,
+    createdAt: Date,
+    updatedAt: Date
 }
 
 const userSchema = new Schema<UserInterface>(
@@ -17,7 +20,7 @@ const userSchema = new Schema<UserInterface>(
         },
         orgId: {
             type: Schema.Types.ObjectId,
-            ref: 'Organization',
+            ref: 'Organisation',
             required: true
         },
         email: {
@@ -29,6 +32,7 @@ const userSchema = new Schema<UserInterface>(
         password: {
             type: String,
             required: true,
+            select: false,
         },
         role: {
             type: String,
@@ -41,11 +45,27 @@ const userSchema = new Schema<UserInterface>(
         }
     },
     {
-        timestamps: true
+        timestamps: true,
+        toJSON: {
+            transform: (_, ret: Partial<UserInterface>) => {
+                delete ret.password;
+                return ret;
+            }
+        }
     }
 )
 
-userSchema.index({ orgId: 1, email: 1}, { unique: true })
+userSchema.pre('save', async function () {
+    const user = this;
 
+    // Encrypt password
+    if(user.isModified('password')) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+    }
+
+})
+
+// need to implement findOneAndUpdate middleware for updates. Currently use find().save() uses two db rounds.
 const User = model<UserInterface>('User', userSchema);
 export default User;

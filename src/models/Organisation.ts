@@ -1,11 +1,11 @@
 import { Schema, model, type Document } from 'mongoose';
+import slugify from "slugify";
 
 export interface OrganisationInterface extends Document {
     name: string,
     slug: string,
     settings: {
         theme: 'light' | 'dark',
-        language: string
     },
     isActive: boolean,
     subscription_plan: string,
@@ -49,5 +49,17 @@ const organisationSchema = new Schema<OrganisationInterface>(
     }
 )
 
+organisationSchema.pre('save', function () {
+    const organisation = this;
+
+    if(organisation.isModified('name')) {
+        organisation.slug = slugify(organisation.name, {
+            lower: true,
+            strict: true
+        });
+    }
+
+})
+    
 const Organisation = model<OrganisationInterface>('Organisation', organisationSchema);
 export default Organisation;
