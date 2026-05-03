@@ -1,5 +1,7 @@
-import { Schema, model, type Document } from 'mongoose';
-import slugify from "slugify";
+import mongoose, { Schema, model, type Document } from 'mongoose';
+import slugUpdater from "mongoose-slug-updater";
+
+mongoose.plugin(slugUpdater)
 
 export interface OrganisationInterface extends Document {
     name: string,
@@ -22,6 +24,7 @@ const organisationSchema = new Schema<OrganisationInterface>(
         },
         slug: {
             type: String,
+            slug: 'name',
             required: true,
             unique: true,
             lowercase: true,
@@ -48,18 +51,6 @@ const organisationSchema = new Schema<OrganisationInterface>(
         timestamps: true
     }
 )
-
-organisationSchema.pre('save', function () {
-    const organisation = this;
-
-    if(organisation.isModified('name')) {
-        organisation.slug = slugify(organisation.name, {
-            lower: true,
-            strict: true
-        });
-    }
-
-})
     
 const Organisation = model<OrganisationInterface>('Organisation', organisationSchema);
 export default Organisation;
