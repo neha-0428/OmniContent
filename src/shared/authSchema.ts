@@ -10,3 +10,10 @@ export const registerSchema = z.object({
 
 // This type can be exported to your frontend
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+export const loginSchema = z.object({
+  email: z.email('Invalid Email Address'),
+  password: z.string().min(6, "Password must be at least 6 characters")
+})
+
+export type LoginInput = z.infer<typeof loginSchema>;

@@ -1,51 +1,84 @@
-import Organisation, { OrganisationInterface } from "@/models/Organisation.js"
-import User, { UserInterface } from "@/models/User.js"
-import { toTitleCase } from "@/utils/helpers.js"
-import mongoose from "mongoose"
+import Organisation, { OrganisationInterface } from "@/models/Organisation.js";
+import User, { UserInterface } from "@/models/User.js";
+import { toTitleCase } from "@/utils/helpers.js";
+import mongoose from "mongoose";
+import jwt, { SignOptions } from "jsonwebtoken";
 
 export interface RegisterDTO {
-    name: string
-    email: string
-    password: string
-    orgName: string
-    subscription_plan: 'Free' | 'Pro' | 'Enterprise'
+  name: string;
+  email: string;
+  password: string;
+  orgName: string;
+  subscription_plan: "Free" | "Pro" | "Enterprise";
 }
 
 export const registerService = async (data: RegisterDTO) => {
+  let session = await mongoose.startSession();
+  let response;
 
-    let session = await mongoose.startSession()
-    let response;
+  try {
+    await session.withTransaction(async () => {
+      const organisations = (await Organisation.create(
+        [
+          {
+            name: data.orgName,
+            subscription_plan: toTitleCase(data.subscription_plan),
+          },
+        ],
+        { session },
+      )) as OrganisationInterface[];
 
-    try {
-        await session.withTransaction(async () => {
+      const organisation = organisations[0];
 
-            const organisations = await Organisation.create(
-                [{ name: data.orgName, subscription_plan: toTitleCase(data.subscription_plan) }],
-                { session },
-            ) as OrganisationInterface[];
+      if (!organisation) throw new Error("Failed to create Organisation");
 
-            const organisation = organisations[0]
+      const users = (await User.create(
+        [
+          {
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            orgId: organisation._id,
+            role: "admin",
+          },
+        ],
+        { session },
+      )) as UserInterface[];
 
-            if (!organisation) throw new Error('Failed to create Organisation');
+      const user = users[0];
 
-            const users = await User.create(
-                [{ name: data.name, email: data.email, password: data.password, orgId: organisation._id, role: 'admin' }],
-                { session },
-            ) as UserInterface[];
+      if (!user) throw new Error("Failed to create User");
 
-            const user = users[0]
+      response = {
+        user: { id: user._id, name: user.name, email: user.email },
+        organisation: {
+          id: organisation._id,
+          name: organisation.name,
+          slug: organisation.slug,
+        },
+      };
+    });
 
-            if (!user) throw new Error('Failed to create User')
+    return response;
+  } finally {
+    session.endSession();
+  }
+};
 
-            response = {
-                user: {id: user._id, name: user.name, email: user.email},
-                organisation: { id: organisation._id, name: organisation.name, slug: organisation.slug }
-            }
-        })
+export function generateJwtToken( user: Partial<UserInterface> ) {
+  if (!user._id || !user.orgId) {
+    throw new Error("Cannot generate token: Missing user data");
+  }
 
-        return response;
+  const payload = {
+    userId: user._id.toString(),
+    orgId: user.orgId.toString(),
+    role: user.role,
+  };
 
-    } finally {
-        session.endSession();
-    }
+  const SECRET_KEY = process.env.JWT_SECRET_KEY || "";
+
+  const options: SignOptions = { expiresIn: "1h" };
+
+  return jwt.sign(payload, SECRET_KEY, options);
 }

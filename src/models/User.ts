@@ -1,4 +1,4 @@
-import { model, Schema, Types, type Document } from "mongoose";
+import { Model, model, Schema, Types, type Document } from "mongoose";
 import bcrypt from "bcrypt";
 
 export interface UserInterface extends Document {
@@ -10,6 +10,10 @@ export interface UserInterface extends Document {
     is_active: boolean,
     createdAt: Date,
     updatedAt: Date
+}
+
+export interface UserMethods {
+    comparePassword: (password: string) => Promise<boolean>
 }
 
 const userSchema = new Schema<UserInterface>(
@@ -55,6 +59,12 @@ const userSchema = new Schema<UserInterface>(
     }
 )
 
+userSchema.methods.comparePassword = async function (password: string) {
+
+    return await bcrypt.compare(password, this.password);
+
+}
+
 userSchema.pre('save', async function () {
     const user = this;
 
@@ -63,9 +73,11 @@ userSchema.pre('save', async function () {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password, salt);
     }
-
 })
 
 // need to implement findOneAndUpdate middleware for updates. Currently use find().save() uses two db rounds.
-const User = model<UserInterface>('User', userSchema);
+
+type UserModel = Model<UserInterface, {}, UserMethods>;
+
+const User = model<UserInterface, UserModel>('User', userSchema);
 export default User;
