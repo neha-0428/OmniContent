@@ -15,11 +15,11 @@ connectDB()
 
 app.use('/api/auth', authRoutes)
 
-app.all('*', (req, res, next) => {
-    const error: any = new Error(`${req.originalUrl} not found!`)
-    error.statusCode = 404
-    throw error
-})
+app.use((req, res, next) => {
+    const error: any = new Error(`${req.originalUrl} not found!`);
+    error.statusCode = 404;
+    next(error);
+});
 
 app.use(globalErrorHandler)
 
