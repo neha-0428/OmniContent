@@ -44,9 +44,8 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]              /* Allows cleaner imports like '@/models/user' */
+      "@/*": ["./src/*"]              /* Allows cleaner imports like '@/models/user' */
     }
   },
   "include": ["src/**/*"],

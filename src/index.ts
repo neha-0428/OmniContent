@@ -14,6 +14,6 @@ connectDB()
 
 app.use('/api/auth', authRoutes)
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`SERVER is running on PORT ${PORT}`)
 })
