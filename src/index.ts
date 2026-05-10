@@ -1,8 +1,8 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import connectDB from "./config/db.js"
-import authRoutes from "./routes/authRoutes.js"
 import { globalErrorHandler } from './middleware/globalError.js'
+import router from './routes/index.js'
 
 dotenv.config()
 
@@ -13,7 +13,7 @@ app.use(express.json())
 
 connectDB()
 
-app.use('/api/auth', authRoutes)
+app.use('/api', router)
 
 app.use((req, res, next) => {
     const error: any = new Error(`${req.originalUrl} not found!`);

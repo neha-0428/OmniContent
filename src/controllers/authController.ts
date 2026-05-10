@@ -35,9 +35,7 @@ export const login = expressAsyncHandler(
     const isMatch = await user.comparePassword(password);
 
     if (isMatch) {
-      console.log(isMatch)
       const accessToken = generateJwtToken(user);
-
 
       res.status(200).json({
         message: "Logged In successfully!",
@@ -48,3 +46,8 @@ export const login = expressAsyncHandler(
     }
   },
 );
+
+
+export const getMe = (req: Request, res: Response) => {
+  return res.status(200).json({ data: req.user})
+}
