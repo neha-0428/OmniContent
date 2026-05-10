@@ -25,7 +25,6 @@ const organisationSchema = new Schema<OrganisationInterface>(
         slug: {
             type: String,
             slug: 'name',
-            required: true,
             unique: true,
             lowercase: true,
             trim: true,
