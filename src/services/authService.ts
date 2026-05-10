@@ -71,7 +71,7 @@ export function generateJwtToken( user: Partial<UserInterface> ) {
   }
 
   const payload = {
-    userId: user._id.toString(),
+    id: user._id.toString(),
     orgId: user.orgId.toString(),
     role: user.role,
   };

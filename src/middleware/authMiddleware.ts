@@ -14,7 +14,6 @@ export const protect = expressAsyncHandler(
       token = req.headers.authorization.split(" ")[1];
     }
 
-    console.log(token)
     if (!token) {
       throw new AppError("Please log in to continue!", 401);
     }
@@ -24,7 +23,7 @@ export const protect = expressAsyncHandler(
       process.env.JWT_SECRET_KEY as string,
     ) as JwtPayload;
 
-    const currentUser = await User.findOne(decoded.id);
+    const currentUser = await User.findOne({ _id: decoded.id });
 
     if (!currentUser) {
       throw new AppError("User not found", 404);

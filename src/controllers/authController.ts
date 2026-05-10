@@ -42,7 +42,7 @@ export const login = expressAsyncHandler(
         accessToken: accessToken,
       });
     } else {
-      throw new AppError("Login failed!", 500);
+      throw new AppError("Login failed!", 401);
     }
   },
 );
