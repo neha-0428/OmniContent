@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { catchAsync } from "@/utils/catchAsync.js";
 import { AppError } from "@/utils/AppError.js";
 
-export const registerOrganisation = async (req: Request, res: Response) => {
+export const registerOrganisation = catchAsync(async (req: Request, res: Response) => {
   const { email } = req.body;
 
   const existingUser = await User.findOne({ email });
@@ -18,4 +18,4 @@ export const registerOrganisation = async (req: Request, res: Response) => {
   return res
     .status(201)
     .json({ message: "Organisation created successfully!", data: response });
-};
+});
