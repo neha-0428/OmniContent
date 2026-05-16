@@ -7,6 +7,8 @@ export const createCollection = expressAsyncHandler(
 
         const { name, fields } = req.body
 
+        // const slug = name.slugify
+
         
     }
 )
