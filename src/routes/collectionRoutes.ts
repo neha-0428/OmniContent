@@ -5,6 +5,6 @@ import { createCollectionSchema } from "@/shared/collectionSchema.js";
 
 const router = express.Router();
 
-router.post("create", validate(createCollectionSchema), createCollection);
+router.post("/create", validate(createCollectionSchema), createCollection);
 
 export default router;

@@ -1,7 +1,4 @@
-import mongoose, { Document, model, Schema, Types } from "mongoose";
-import slugUpdater from "mongoose-slug-updater";
-
-mongoose.plugin(slugUpdater);
+import { Document, model, Schema, Types } from "mongoose";
 
 interface FieldInterface {
   name: string;

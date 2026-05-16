@@ -1,8 +1,6 @@
 import mongoose, { Schema, model, type Document } from "mongoose";
 import slugUpdater from "mongoose-slug-updater";
 
-mongoose.plugin(slugUpdater);
-
 export interface OrganisationInterface extends Document {
   name: string;
   slug: string;
