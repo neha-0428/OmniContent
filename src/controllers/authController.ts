@@ -26,7 +26,7 @@ export const login = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       throw new AppError("User Not Found", 404);
@@ -47,7 +47,6 @@ export const login = expressAsyncHandler(
   },
 );
 
-
 export const getMe = (req: Request, res: Response) => {
-  return res.status(200).json({ data: req.user})
-}
+  return res.status(200).json({ data: req.user });
+};
