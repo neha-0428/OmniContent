@@ -1,6 +1,6 @@
 import { model, Schema, Types } from "mongoose";
 
-interface EntryInterface {
+export interface EntryInterface {
     orgId: Types.ObjectId,
     collectionId: Types.ObjectId,
     content: Record<string, any>,

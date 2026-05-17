@@ -1,6 +1,6 @@
 import { Document, model, Schema, Types } from "mongoose";
 
-interface FieldInterface {
+export interface FieldInterface {
   name: string;
   type: "text" | "number" | "boolean" | "rich-text";
   required: boolean;
