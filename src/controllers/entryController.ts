@@ -15,13 +15,13 @@ export const createEntry = expressAsyncHandler(
       throw new AppError('Collection Name Not Found!', 404);
     }
 
-    const collection = await Collection.findOne({ slug: collectionSlug });
+    const orgId = req.user.orgId;
+    const collection = await Collection.findOne({ orgId: orgId, slug: collectionSlug });
 
     if (!collection) {
       throw new AppError("Collection Not Found!", 404);
     }
 
-    const orgId = req.user.orgId;
     const userId = req.user._id;
     const entryData = await createEntryService({
       orgId,

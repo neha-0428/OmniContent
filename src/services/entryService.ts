@@ -14,18 +14,33 @@ export interface EntryDTO {
   updatedBy: Types.ObjectId;
 }
 
+const typesMap: Record<string, string> = {
+  'text': 'string',
+  'rich-text': 'string',
+  'number': 'number',
+  'boolean': 'boolean'
+}
+
 export const createEntryService = async (data: EntryDTO) => {
-  const fields = data.collection.fields;
+  const fields = data.collection.fields as FieldInterface[];
+  const userContent = data.content || {};
 
   fields.forEach((field: FieldInterface) => {
-    const fieldValue = data.content[field.name];
 
-    if (!fieldValue) {
-      throw new AppError(`Missing ${field.name}`, 400);
+    const fieldValue = userContent[field.name];
+    const isProvided = fieldValue !== undefined && fieldValue !== null;
+
+    if (field.required && !isProvided) {
+      throw new AppError(`The field '${field.name}' is required by the blueprint.`, 400);
     }
 
-    if (!fieldValue || typeof fieldValue !== field.type) {
-      throw new AppError("Validation Error", 400);
+    if (isProvided) {
+      const expectedType = typesMap[field.type]
+      const actualType = typeof fieldValue
+
+      if (expectedType !== actualType) {
+        throw new AppError(`Validation failure: Field '${field.name}' expects a ${field.type}, but received a ${actualType}.`, 400);
+      }
     }
   });
 
@@ -33,16 +48,17 @@ export const createEntryService = async (data: EntryDTO) => {
     {
       orgId: data.orgId,
       collectionId: data.collection._id,
-      content: data.content,
-      status: data.status ?? 'Draft',
-      version: data.version ?? 1,
+      content: userContent,
+      status: data.status || 'Draft',
+      version: data.version || 1,
       createdBy: data.userId,
+      updatedBy: data.userId
     },
   ])) as EntryInterface[];
 
-  if (!Entries) {
+  if (!Entries || Entries.length === 0) {
     throw new AppError("Failed creating Entry!", 400);
   }
 
-  const entryData = Entries[0];
+  return Entries[0];
 };
