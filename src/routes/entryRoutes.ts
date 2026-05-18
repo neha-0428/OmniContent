@@ -1,4 +1,4 @@
-import { createEntry, updateEntry } from '@/controllers/entryController.js';
+import { createEntry, getEntries, updateEntry } from '@/controllers/entryController.js';
 import express from 'express'
 
 
@@ -8,5 +8,6 @@ router.post('/create/:collectionSlug', createEntry);
 
 router.put('/:entryId', updateEntry);
 
-export default router;
+router.get('/:collectionSlug', getEntries);
 
+export default router;

@@ -84,3 +84,70 @@ export const updateEntry = expressAsyncHandler(
     });
   }
 )
+
+export const getEntries = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const { collectionSlug } = req.params
+    if (!collectionSlug) {
+      throw new AppError('No collection found!', 404);
+    }
+
+    const page = Math.max(1, parseInt(req.query.page as string) || 1)
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit as string) || 10))
+    const status = req.query.status as string
+    const search = req.query.search as string
+
+    const orgId = req.user.orgId
+
+    const collection = await Collection.findOne({ orgId, slug: collectionSlug })
+    if (!collection) {
+      throw new AppError('No Collection Found', 404);
+    }
+
+    const queryConditons: Record<string, any> = {
+      orgId,
+      collectionId: collection._id,
+    }
+
+    if (status) {
+      queryConditons.status = status
+    }
+
+    if (search) {
+      const textFields = collection.fields.filter((f) => f.type === 'text' || f.type === 'rich-text')
+      
+      if (textFields.length > 0) {
+        queryConditons.$or = textFields.map((field) => ({
+          [`content.${field.name}`] : { $regex: search, $options: "i" }
+        }))
+      }
+    }
+
+    const skipAmount = (page - 1) * limit
+
+    const [totalItems, entries] = await Promise.all([
+      Entry.countDocuments(queryConditons),
+      Entry.find(queryConditons)
+      .sort({ createdAt: -1 })
+      .skip(skipAmount)
+      .limit(limit)
+      .populate("updatedBy", "name email")
+      .lean()
+    ]);
+
+    const totalPages = Math.ceil(totalItems/limit)
+
+    res.status(200).json({
+      message: "Entries fetched successfully",
+      pagination: {
+        totalItems,
+        totalPages,
+        currentPage: page,
+        pageSize: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1
+      },
+      data: entries
+    });
+  }
+)
