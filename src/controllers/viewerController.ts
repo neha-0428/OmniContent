@@ -8,11 +8,7 @@ export const getPublishedEntries = expressAsyncHandler(
   async (req: Request, res: Response) => {
 
     const collectionSlug = req.params.collectionSlug as string;
-    const orgId = req.headers["x-org-id"];
-
-    if (!orgId) {
-      throw new AppError("Organisation ('x-org-id') header is missing", 400);
-    }
+    const orgId = req.orgId
 
     const collection = await Collection.findOne({ orgId, slug: collectionSlug });
 

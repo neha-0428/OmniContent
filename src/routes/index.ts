@@ -5,10 +5,11 @@ import entryRoutes from "./entryRoutes.js";
 import apiKeyRoutes from "./apiKeyRoutes.js";
 import { protect } from "@/middleware/authMiddleware.js";
 import { getPublishedEntries } from "@/controllers/viewerController.js";
+import { validateApiKey } from "@/middleware/validateApiKey.js";
 
 const router = express.Router();
 
-router.get('/view/:collectionSlug', getPublishedEntries);
+router.get('/view/:collectionSlug', validateApiKey, getPublishedEntries);
 
 router.use("/auth", authRoutes);
 
