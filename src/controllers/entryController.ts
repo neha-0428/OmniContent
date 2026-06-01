@@ -107,6 +107,7 @@ export const getEntries = expressAsyncHandler(
     const queryConditons: Record<string, any> = {
       orgId,
       collectionId: collection._id,
+      deletedAt: null,
     }
 
     if (status) {
@@ -149,5 +150,27 @@ export const getEntries = expressAsyncHandler(
       },
       data: entries
     });
+  }
+)
+
+export const deleteEntry = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+
+    const entryId = req.params.entryId
+    const orgId = req.user.orgId
+
+    const updatedEntry = await Entry.findOneAndUpdate(
+      { _id: entryId, orgId, deletedAt: null },
+      { $set: { deletedAt: new Date(), updatedBy: req.user._id}},
+      { new: true }
+    )
+
+    if (!updatedEntry) {
+      throw new AppError('Entry Not Found!', 404)
+    }
+
+    res.status(200).json({
+      message: 'Entry Deleted Successfully!'
+    })
   }
 )

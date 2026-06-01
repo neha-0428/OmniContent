@@ -10,6 +10,7 @@ export interface EntryInterface {
     updatedBy: Types.ObjectId,
     createdAt: Date,
     updatedAt: Date,
+    deletedAt?: Date | null
 }
 
 const entrySchema = new Schema<EntryInterface>(
@@ -48,13 +49,18 @@ const entrySchema = new Schema<EntryInterface>(
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'User'
+        },
+        deletedAt: {
+            type: Date,
+            default: null,
+            index: true
         }
     }, { timestamps: true }
 )
 
-entrySchema.index({ orgId: 1, collectionId: 1})
+entrySchema.index({ orgId: 1, collectionId: 1, deletedAt: 1 })
 
-entrySchema.index({ orgId: 1, collectionId: 1, status: 1 });
+entrySchema.index({ orgId: 1, collectionId: 1, status: 1, deletedAt: 1 });
 
 const Entry = model<EntryInterface>('Entry', entrySchema);
 

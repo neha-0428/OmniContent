@@ -24,7 +24,8 @@ export const getPublishedEntries = expressAsyncHandler(
         {
             orgId,
             collectionId: collection._id,
-            status: 'Published'
+            status: 'Published',
+            deletedAt: null
         }
     ).select('content createdAt updatedAt')
     .lean(); // Performance move for read-only public routes
