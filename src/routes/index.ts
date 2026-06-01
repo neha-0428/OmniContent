@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import authRoutes from "./authRoutes.js";
 import collectionRoutes from "./collectionRoutes.js";
 import entryRoutes from "./entryRoutes.js";
+import apiKeyRoutes from "./apiKeyRoutes.js";
 import { protect } from "@/middleware/authMiddleware.js";
 import { getPublishedEntries } from "@/controllers/viewerController.js";
 
@@ -16,6 +17,8 @@ router.use(protect);
 router.use("/collection", collectionRoutes);
 
 router.use("/entries", entryRoutes);
+
+router.use('/api-keys', apiKeyRoutes);
 
 router.get("/test", (req: Request, res: Response) => {
   res.json({ message: "Testing route!" });
