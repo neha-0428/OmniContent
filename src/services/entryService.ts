@@ -20,6 +20,7 @@ const typesMap: Record<string, string> = {
   "rich-text": "string",
   number: "number",
   boolean: "boolean",
+  media: "object"
 };
 
 export const createEntryService = async (data: EntryDTO) => {
