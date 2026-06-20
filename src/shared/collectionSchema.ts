@@ -2,9 +2,9 @@ import z from "zod";
 
 const fieldValidationSchema = z.object({
   name: z.string().trim().min(1, "Field name cannot be empty").lowercase(),
-  type: z.enum(["text", "number", "boolean", "rich-text"], {
+  type: z.enum(["text", "number", "boolean", "rich-text", "media"], {
     error: () => ({
-      message: "Type must be text, number, boolean, or rich-text",
+      message: "Type must be text, number, boolean, rich-text, or media",
     }),
   }),
   required: z.boolean().default(false),

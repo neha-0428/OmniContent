@@ -2,7 +2,7 @@ import { Document, model, Schema, Types } from "mongoose";
 
 export interface FieldInterface {
   name: string;
-  type: "text" | "number" | "boolean" | "rich-text";
+  type: "text" | "number" | "boolean" | "rich-text" | "media";
   required: boolean;
 }
 
@@ -24,7 +24,7 @@ const FieldSchema = new Schema<FieldInterface>(
     },
     type: {
       type: String,
-      enum: ["text", "number", "boolean", "rich-text"],
+      enum: ["text", "number", "boolean", "rich-text", "media"],
       default: "text",
       required: true,
     },
